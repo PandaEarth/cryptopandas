@@ -219,9 +219,19 @@ contract PandaBreeding is PandaOwnership {
             _isSiringPermitted(_sireId, _matronId);
     }
 
+    function _exchangeMatronSireId(uint256 _matronId, uint256 _sireId) internal returns(uint256,uint256)  {
+        if (geneScience.getSex(pandas[_matronId].genes) == 1){
+            return (_sireId,_matronId);
+        }else{
+            return (_matronId,_sireId);
+        }
+    }
+    
     /// @dev Internal utility function to initiate breeding, assumes that all breeding
     ///  requirements have been checked.
     function _breedWith(uint256 _matronId, uint256 _sireId, address _owner) internal {
+        // make id point real gender
+        (_matronId,_sireId) = _exchangeMatronSireId(_matronId,_sireId);
         // Grab a reference to the Pandas from storage.
         Panda storage sire = pandas[_sireId];
         Panda storage matron = pandas[_matronId];

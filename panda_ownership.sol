@@ -7,8 +7,6 @@ import "./panda_base.sol";
 
 import "./panda_access_control.sol";
 
-import "./erc721_metadata.sol";
-
 
 
 /// @title The facet of the CryptoPandas core contract that manages ownership, ERC-721 (draft) compliant.
@@ -20,9 +18,6 @@ contract PandaOwnership is PandaBase, ERC721 {
     /// @notice Name and symbol of the non fungible token, as defined in ERC721.
     string public constant name = "PandaEarth";
     string public constant symbol = "PE";
-
-    // The contract that will return panda metadata
-    ERC721Metadata public erc721Metadata;
 
     bytes4 constant InterfaceSignature_ERC165 =
         bytes4(keccak256('supportsInterface(bytes4)'));
@@ -48,12 +43,6 @@ contract PandaOwnership is PandaBase, ERC721 {
         //require((InterfaceSignature_ERC165 == 0x01ffc9a7) && (InterfaceSignature_ERC721 == 0x9a20483d));
 
         return ((_interfaceID == InterfaceSignature_ERC165) || (_interfaceID == InterfaceSignature_ERC721));
-    }
-
-    /// @dev Set the address of the sibling contract that tracks metadata.
-    ///  CEO only.
-    function setMetadataAddress(address _contractAddress) public onlyCEO {
-        erc721Metadata = ERC721Metadata(_contractAddress);
     }
 
     // Internal utility functions: These functions all assume that their input arguments
@@ -264,15 +253,4 @@ contract PandaOwnership is PandaBase, ERC721 {
         return outputString;
     }
 
-    /// @notice Returns a URI pointing to a metadata package for this token conforming to
-    ///  ERC-721 (https://github.com/ethereum/EIPs/issues/721)
-    /// @param _tokenId The ID number of the Panda whose metadata should be returned.
-    function tokenMetadata(uint256 _tokenId, string _preferredTransport) external view returns (string infoUrl) {
-        require(erc721Metadata != address(0));
-        bytes32[4] memory buffer;
-        uint256 count;
-        (buffer, count) = erc721Metadata.getMetadata(_tokenId, _preferredTransport);
-
-        return _toString(buffer, count);
-    }
 }
